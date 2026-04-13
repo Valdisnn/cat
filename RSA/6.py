@@ -1,4 +1,4 @@
-# 6. RSA числа (GUI - Исправлено)
+# 6. Разработать визуальное приложение для шифрования/дешифрования чисел.
 import tkinter as tk, os
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_v1_5

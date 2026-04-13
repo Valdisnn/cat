@@ -1,4 +1,4 @@
-# 3. RSA произвольные файлы (GUI - Исправлено)
+# 3. Разработать визуальное приложение для шифрования/дешифрования произвольных файлов.
 import tkinter as tk
 from tkinter import filedialog
 from Crypto.PublicKey import RSA
@@ -30,4 +30,3 @@ root = tk.Tk()
 tk.Button(text="Enc", command=lambda: do('e')).pack()
 tk.Button(text="Dec", command=lambda: do('d')).pack()
 root.mainloop()
-    

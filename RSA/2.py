@@ -1,4 +1,4 @@
-# 2. RSA изображения (Рабочий вариант)
+# 2. Разработать визуальное приложение для шифрования/дешифрования изображений.
 import tkinter as tk
 from tkinter import filedialog
 from Crypto.PublicKey import RSA
