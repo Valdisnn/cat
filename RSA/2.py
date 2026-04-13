@@ -1,4 +1,4 @@
-# 2. Разработать визуальное приложение для шифрования/дешифрования изображений.
+# 2. RSA изображения (Рабочий вариант)
 import tkinter as tk
 from tkinter import filedialog
 from Crypto.PublicKey import RSA
@@ -9,9 +9,16 @@ pub, priv = PKCS1_v1_5.new(k.publickey()), PKCS1_v1_5.new(k)
 
 def do(m):
     p = filedialog.askopenfilename()
-    d = open(p, 'rb').read()
-    if m == 'e': open(p+'.enc','wb').write(pub.encrypt(d[:200]))
-    else: open(p+'.dec.png','wb').write(priv.decrypt(d, 0))
+    if not p: return
+    data = open(p, 'rb').read()
+
+    if m == 'e':
+        head = pub.encrypt(data[:200])
+        open(p + '.enc', 'wb').write(head + data[200:])
+    else:
+        head = priv.decrypt(data[:256], b"error")
+        open(p + '.dec.png', 'wb').write(head + data[256:])
+    print("Готово")
 
 root = tk.Tk()
 tk.Button(text="Enc", command=lambda: do('e')).pack()
