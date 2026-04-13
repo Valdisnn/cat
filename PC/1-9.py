@@ -1,37 +1,44 @@
-import hashlib, os, platform, uuid
+import os
+import platform
+import uuid
+import getpass
+import socket
 
-# 1. Сбор данных под Windows (через popen)
-def get_mac():  return str(uuid.getnode())
-def get_user(): return os.getlogin()
-def get_os():   return platform.version()
-def get_host(): return platform.node()
-def get_disk(): return os.popen('wmic diskdrive get serialnumber').read().split()[1]
-def get_bios(): return os.popen('wmic bios get serialnumber').read().split()[1]
-def get_cpu():  return os.popen('wmic cpu get maxclockspeed').read().split()[1]
+def get_mac():
+    return hex(uuid.getnode())
 
-# 2. Таблица вариантов
-variants = {
-    1: lambda: (get_disk(), get_mac()), # 1. Серийный номер раздела жесткого диска, MAC-адрес сетевой карты
-    2: lambda: ("Registry", get_cpu()),  # 2. Информация из реестра, тактовая частота процессора
-    3: lambda: (get_os(), get_mac()),   # 3. Версия операционной системы, MAC-адрес сетевой карты
-    4: lambda: (get_user(), get_disk()),# 4. Имя пользователя, серийный номер раздела жесткого диска
-    5: lambda: (get_host(), "Registry"), # 5. Название компьютера, информация из реестра
-    6: lambda: (get_bios(), get_user()),# 6. Версия БИОС, имя пользователя
-    7: lambda: (get_disk(), get_user()),# 7. Серийный номер раздела жесткого диска, имя пользователя
-    8: lambda: (get_user(), get_cpu()), # 8. Имя пользователя, тактовая частота процессора
-    9: lambda: (get_mac(), get_cpu()),  # 9. MAC-адрес сетевой карты, тактовая частота процессора
-}
+def get_user():
+    return getpass.getuser()
 
-# 3. Логика лицензии
-v = int(input("Вариант (1-9): "))
-p1, p2 = variants[v]()
-hwid = hashlib.sha256(f"{p1}{p2}".encode()).hexdigest()
+def get_os():
+    return platform.platform()
 
-if os.path.exists('lic.dat'):
-    if open('lic.dat').read() == hwid:
-        print("OK: Доступ разрешен")
-    else:
-        print("FAIL: Другой компьютер"); exit()
-else:
-    open('lic.dat', 'w').write(hwid)
-    print("Лицензия создана. Перезапустите.")
+def get_host():
+    return socket.gethostname()
+
+def get_cpu():
+    return os.popen("wmic cpu get MaxClockSpeed").read()
+
+def get_disk():
+    return os.popen("wmic logicaldisk get VolumeSerialNumber").read()
+
+def get_bios():
+    return os.popen("wmic bios get SerialNumber").read()
+
+def get_registry():
+    try:
+        import winreg
+        key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\Microsoft\Cryptography")
+        value, _ = winreg.QueryValueEx(key, "MachineGuid")
+        return value
+    except:
+        return "Нет доступа"
+
+print("1. MAC:", get_mac())
+print("2. Пользователь:", get_user())
+print("3. ОС:", get_os())
+print("4. Имя ПК:", get_host())
+print("5. CPU (частота):", get_cpu())
+print("6. Диск:", get_disk())
+print("7. BIOS:", get_bios())
+print("8. Реестр (MachineGuid):", get_registry())
